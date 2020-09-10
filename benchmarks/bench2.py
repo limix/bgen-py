@@ -8,17 +8,21 @@ from bgen_reader import open_bgen
 def read_nth(nth, cb, offset_list, bgen2):
 
     bgen2_t0 = time.time()
-    proball_bgen2 = bgen2.read(np.s_[::nth],order='F')
-    #for ivariant in range(0,bgen2.nvariants,nth):
-    #    prob1_bgen2 = bgen2.read(ivariant)#np.s_[::nth])
+    proball_bgen2 = bgen2.read(nth)
+    #for ivariant in range(0,bgen2.nvariants)nth:
+    #    prob1_bgen2 = bgen2.read(ivariant)#nth
     diff_bgen2 = time.time()-bgen2_t0
     print(f"bgen2: reading every {nth}th variant takes {diff_bgen2} seconds")
     prob1_bgen2 = proball_bgen2[:,-1,:]
 
     cb_t0 = time.time()
-    proball_cb = np.empty((bgen2.nsamples,len(offset_list[::nth]),3),order='F') # Much faster than order='C'
-    for ivariant, offset in enumerate(offset_list[::nth]):
-        proball_cb[:,ivariant,:] = cb.read_probability(offset)
+    proball_cb = np.empty((bgen2.nsamples,len(offset_list[nth]),3),order='F') # Much faster than order='C'
+    #    proball_cb = []
+    for ivariant, offset in enumerate(offset_list[nth]):
+        prob1 = cb.read_probability(offset)
+        proball_cb[:,ivariant,:] = prob1
+        #proball_cb.append(prob1)
+    #proball_cb = np.array(proball_cb)
     diff_cb = time.time()-cb_t0
     print(f"cbgen: reading every {nth}th variant takes {diff_cb} seconds")
     prob1_cb = proball_cb[:,-1,:]
@@ -28,7 +32,9 @@ def read_nth(nth, cb, offset_list, bgen2):
 
 
 if __name__ == "__main__":
-    filename = "merged_487400x220000.bgen"
+    #filename = "merged_487400x220000.bgen"
+    filename = "1000x500000.bgen"
+
     print(f"file {filename}")
     filepath = BGEN_CACHE_HOME / "test_data" / filename
     if not filepath.exists(): #For convenience, assume that any file is the right file
@@ -48,8 +54,16 @@ if __name__ == "__main__":
 
     bgen2 = open_bgen(filepath,verbose=False)
 
-    read_nth(5000, cb, offset_list, bgen2)
-    read_nth(500, cb, offset_list, bgen2)
+    #read_nth(np.s_[::5000], cb, offset_list, bgen2)
+    #read_nth(np.s_[::500], cb, offset_list, bgen2)
+    #read_nth(np.s_[::50], cb, offset_list, bgen2)
+    read_nth(np.s_[::10], cb, offset_list, bgen2)
+    #read_nth(np.s_[::5], cb, offset_list, bgen2)
+    #read_nth(np.s_[::500], cb, offset_list, bgen2)
+    #read_nth(np.s_[200*1000:200*1000+50], cb, offset_list, bgen2)
+    #read_nth(np.s_[200*1000:200*1000+500], cb, offset_list, bgen2)
+
+
 
     del bgen2
     del cb
