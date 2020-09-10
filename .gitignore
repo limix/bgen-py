@@ -129,3 +129,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/.vs
+/cbgen/zlib.dll
+/cbgen/libzstd.dll
+/cbgen/bgen.dll
+/cbgen/athr.dll
